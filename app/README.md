@@ -10,7 +10,7 @@ npm run build    # production build in dist/
 
 | File | What it does |
 |---|---|
-| `src/data/tripData.js` | "Prepare trip": downloads the model and species list into Cache Storage, for offline use. Set `VITE_MODEL_URL` to host the model elsewhere. |
+| `src/data/tripData.js` | "Prepare trip": downloads the model and species list into Cache Storage, for offline use. Production builds take the model from [Hugging Face](https://huggingface.co/Virien/naturdex-bioclip-onnx) via `VITE_MODEL_URL` in `.env.production`. |
 | `src/ml/classifier.js` | Runs BioCLIP's image encoder (ONNX, WASM) and compares the photo with the precomputed species embeddings. Confidence thresholds and the precaution rule (see [../SAFETY.md](../SAFETY.md)). |
 | `src/ml/photoQuality.js` | Blurry / too dark check (variance of the Laplacian), before running the model. |
 | `src/data/db.js` | The album, in IndexedDB. Nothing leaves the phone. |
