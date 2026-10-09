@@ -13,6 +13,8 @@ Python scripts that run **once, on the laptop**, before the field trip:
    (float32, species × 512).
 4. `export_onnx.py` — BioCLIP's image encoder to ONNX → `models/onnx/bioclip-image-fp32.onnx` (345 MB,
    reference) and `../app/public/models/bioclip-image-int8.onnx` (87 MB, int8 weights, for the phone).
+   The int8 model is published on Hugging Face as
+   [Virien/naturdex-bioclip-onnx](https://huggingface.co/Virien/naturdex-bioclip-onnx), where the app downloads it from.
 5. `evaluate.py` — accuracy check on research-grade iNaturalist photos from Spain, run exactly as the
    phone will (see the latest numbers in [../SAFETY.md](../SAFETY.md) and the post).
 
@@ -28,3 +30,9 @@ uv run python evaluate.py
 ```
 
 The BioCLIP weights live in `models/bioclip/` (not committed to git).
+
+To publish a new version of the model (after `hf auth login` with a *write* token):
+
+```sh
+uvx --from huggingface_hub hf upload Virien/naturdex-bioclip-onnx ../app/public/models/bioclip-image-int8.onnx bioclip-image-int8.onnx
+```
