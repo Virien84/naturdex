@@ -73,6 +73,7 @@ export default function SpeciesCard({ result, onPick, onRetake }) {
         <>
           <h2>Hmm, I'm not sure…</h2>
           <p>Try again closer, with the plant or animal in the middle of the photo.</p>
+          <p className="hint">🌳 For a tree, don't photograph the whole tree: get close to one leaf, flower, fruit or the bark.</p>
           <p className="banner caution">✋ {UNSURE_REMINDER}</p>
         </>
       )}

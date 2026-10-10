@@ -18,6 +18,12 @@ function shrink(image, maxSide = 1024) {
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85))
 }
 
+// Waits until the browser has drawn the screen. Decoding the photo and running
+// the model block the page, so without this the "thinking" screen never shows.
+function nextPaint() {
+  return new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)))
+}
+
 export default function CameraScreen({ onGoPrepare }) {
   const input = useRef(null)
   const photo = useRef(null) // { image, position } of the photo being checked
@@ -54,6 +60,8 @@ export default function CameraScreen({ onGoPrepare }) {
     event.target.value = '' // so the same file can be picked again
     if (!file) return
     setPreview(URL.createObjectURL(file))
+    setStep('thinking')
+    await nextPaint()
     const image = await createImageBitmap(file) // respects the photo's rotation
     photo.current = { image, position: getPosition() } // GPS runs while the model thinks
 
@@ -68,6 +76,7 @@ export default function CameraScreen({ onGoPrepare }) {
 
   async function identify() {
     setStep('thinking')
+    await nextPaint()
     try {
       setResult(await classify(photo.current.image))
       setStep('result')
@@ -109,7 +118,7 @@ export default function CameraScreen({ onGoPrepare }) {
           <button type="button" className="primary big" onClick={() => input.current.click()}>
             📷 Take a photo
           </button>
-          <p className="hint">Get close, and keep the plant or animal in the middle.</p>
+          <p className="hint">Get close, and keep the plant or animal in the middle. For trees, photograph one leaf, flower or the bark.</p>
         </>
       )}
 
@@ -128,7 +137,13 @@ export default function CameraScreen({ onGoPrepare }) {
         </div>
       )}
 
-      {step === 'thinking' && <p className="thinking">🔍 Looking closely…</p>}
+      {step === 'thinking' && (
+        <div className="thinking" role="status">
+          <div className="spinner" aria-hidden="true" />
+          <p>🔍 Looking closely…</p>
+          <p className="hint">This can take a few seconds.</p>
+        </div>
+      )}
 
       {step === 'result' && <SpeciesCard result={result} onPick={pick} onRetake={retake} />}
 
