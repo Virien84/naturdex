@@ -118,7 +118,9 @@ function precautionWarnings(candidates) {
 // "a European Robin", "an Asian Hornet", "an earwig" (when there's no common name)
 export function withArticle(species) {
   const name = species.en ?? species.kind
-  return `${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${name}`
+  // "a European", "a unicorn", "a one-…": these vowels sound like consonants
+  const vowelSound = /^[aeiou]/i.test(name) && !/^(eu|uni|use|one)/i.test(name)
+  return `${vowelSound ? 'an' : 'a'} ${name}`
 }
 
 // "European Robin", or "An earwig" when the species has no common name

@@ -21,8 +21,14 @@ export default defineConfig({
         background_color: '#9b1b2a',
         display: 'standalone',
         orientation: 'portrait',
-        // TODO: add 192x192 and 512x512 icons (required to install the app)
-        icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' }],
+        // PNGs made from public/favicon.svg. The maskable one is full-bleed so
+        // Android can crop it to its own shape (circle, squircle…)
+        icons: [
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+        ],
       },
       workbox: {
         // The app shell (HTML, JS, CSS, fonts and onnxruntime's .wasm files) is cached on install.

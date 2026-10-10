@@ -45,8 +45,13 @@ export async function prepareTrip(onProgress = () => {}) {
     await cache.put(file.url, new Response(new Blob(chunks), { headers: response.headers }))
   }
 
-  // Ask the browser not to delete our data when the phone runs low on space
-  const persisted = (await navigator.storage?.persist?.()) ?? false
+  // Ask the browser not to delete our data when the phone runs low on space.
+  // Firefox asks the user first, so don't keep the download waiting for the
+  // answer: after 3 s it counts as unknown (null) and the trip is ready anyway.
+  const persisted = await Promise.race([
+    navigator.storage?.persist?.() ?? false,
+    new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
+  ])
   onProgress(1)
   return { persisted }
 }
