@@ -19,6 +19,19 @@ export const UNSURE_REMINDER =
 
 let loading = null
 
+// Parses species.json and gives every species its NaturDex number (No. 0001…),
+// in the same order as the embeddings file
+export function readCatalog(bytes) {
+  const catalog = JSON.parse(new TextDecoder().decode(bytes))
+  catalog.species.forEach((species, i) => (species.number = i + 1))
+  return catalog
+}
+
+// "No. 0042"
+export function dexNumber(species) {
+  return `No. ${String(species.number).padStart(4, '0')}`
+}
+
 // Loads the model and the species list once; later calls reuse them
 export function loadClassifier() {
   loading ??= (async () => {
@@ -27,7 +40,7 @@ export function loadClassifier() {
       getTripFile('species'),
       getTripFile('embeddings'),
     ])
-    const catalog = JSON.parse(new TextDecoder().decode(speciesBytes))
+    const catalog = readCatalog(speciesBytes)
     const session = await ort.InferenceSession.create(new Uint8Array(modelBytes), {
       executionProviders: ['wasm'],
     })

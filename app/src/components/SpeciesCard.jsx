@@ -1,6 +1,7 @@
 // What NaturDex thinks the photo shows: one answer, a choice of three, or
 // "not sure". Safety warnings always come first.
-import { UNSURE_REMINDER, displayName, withArticle } from '../ml/classifier.js'
+import { UNSURE_REMINDER, dexNumber, displayName, withArticle } from '../ml/classifier.js'
+import KindChip from './KindChip.jsx'
 
 // `sure` is the species NaturDex is confident about: its warning has no "?"
 function Warnings({ warnings, sure }) {
@@ -13,8 +14,13 @@ function Warnings({ warnings, sure }) {
   ))
 }
 
+// How sure NaturDex is, shown like a reading on the device
 function Percent({ value }) {
-  return <span className="hint">{Math.round(value * 100)}%</span>
+  return (
+    <span className="readout" title="How sure NaturDex is">
+      {Math.round(value * 100)}%
+    </span>
+  )
 }
 
 function Choice({ candidate, onPick }) {
@@ -24,7 +30,7 @@ function Choice({ candidate, onPick }) {
       <span>
         <strong>{displayName(species)}</strong>
         <br />
-        <em>{species.scientific}</em> · {species.kind}
+        <em>{species.scientific}</em> <KindChip kind={species.kind} />
       </span>
       <Percent value={probability} />
     </button>
@@ -41,11 +47,13 @@ export default function SpeciesCard({ result, onPick, onRetake }) {
 
       {verdict === 'confident' && (
         <>
-          <h2>
-            It's {withArticle(best.species)}! <Percent value={best.probability} />
-          </h2>
-          <p>
-            <em>{best.species.scientific}</em> · {best.species.kind}
+          <p className="entry-head">
+            <span className="readout">{dexNumber(best.species)}</span>
+            <Percent value={best.probability} />
+          </p>
+          <h2 className="entry-name">It's {withArticle(best.species)}!</h2>
+          <p className="entry-meta">
+            <em>{best.species.scientific}</em> <KindChip kind={best.species.kind} />
           </p>
           {best.species.safety.protected && <p className="hint">🛡️ Protected species: look, but don't disturb it.</p>}
           <button type="button" className="primary" onClick={() => onPick(best)}>
@@ -63,6 +71,7 @@ export default function SpeciesCard({ result, onPick, onRetake }) {
       {verdict === 'maybe' && (
         <>
           <h2>Which one is it?</h2>
+          <p className="hint">Compare your photo and tap the right one.</p>
           {candidates.slice(0, 3).map((c) => (
             <Choice key={c.species.key} candidate={c} onPick={onPick} />
           ))}

@@ -17,16 +17,16 @@ export default defineConfig({
         short_name: 'NaturDex',
         description: 'Photograph nature and fill your NaturDex — fully offline.',
         lang: 'en',
-        theme_color: '#2e7d32',
-        background_color: '#ffffff',
+        theme_color: '#d62839',
+        background_color: '#9b1b2a',
         display: 'standalone',
         orientation: 'portrait',
         // TODO: add 192x192 and 512x512 icons (required to install the app)
         icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' }],
       },
       workbox: {
-        // The app shell (HTML, JS, CSS and onnxruntime's .wasm files) is cached on install.
-        globPatterns: ['**/*.{js,mjs,css,html,svg,png,wasm}'],
+        // The app shell (HTML, JS, CSS, fonts and onnxruntime's .wasm files) is cached on install.
+        globPatterns: ['**/*.{js,mjs,css,html,svg,png,wasm,woff2}'],
         // onnxruntime's .wasm file (~28 MB) is far bigger than Workbox's 2 MB default limit
         maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
         // The model and the species list are NOT precached: they are downloaded in "Prepare trip"

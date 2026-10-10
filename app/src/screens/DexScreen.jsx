@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { listFinds } from '../data/db.js'
 import { getTripFile } from '../data/tripData.js'
-import { displayName } from '../ml/classifier.js'
+import KindChip from '../components/KindChip.jsx'
+import { dexNumber, displayName, readCatalog } from '../ml/classifier.js'
 
 function Photo({ blob, alt }) {
   const [url, setUrl] = useState(null)
@@ -15,7 +16,7 @@ function Photo({ blob, alt }) {
   return url && <img src={url} alt={alt} loading="lazy" />
 }
 
-export default function DexScreen() {
+export default function DexScreen({ onGoCamera }) {
   const [entries, setEntries] = useState(null) // one per species, newest find first
   const [total, setTotal] = useState(null)
 
@@ -24,7 +25,7 @@ export default function DexScreen() {
       const finds = await listFinds()
       let catalog = { species: [] }
       try {
-        catalog = JSON.parse(new TextDecoder().decode(await getTripFile('species')))
+        catalog = readCatalog(await getTripFile('species'))
       } catch {
         // Not downloaded yet: the album still shows, without names
       }
@@ -45,29 +46,39 @@ export default function DexScreen() {
   return (
     <section>
       <h1>My NaturDex</h1>
-      <p className="counter">
-        <strong>{entries.length}</strong>
-        {total && ` of ${total.toLocaleString('en')}`} species found
-      </p>
+      <div className="counter">
+        <p>
+          <span className="readout big">{String(entries.length).padStart(3, '0')}</span>
+          {total && <span className="readout"> / {total}</span>} species found
+        </p>
+      </div>
 
-      {entries.length === 0 && <p>You haven't found any species yet. Go outside and take a photo! 🌿</p>}
+      {entries.length === 0 && (
+        <div className="card empty">
+          <p>Your NaturDex is empty. Photograph a plant or an animal to add your first species.</p>
+          <button type="button" className="primary" onClick={onGoCamera}>
+            📷 Take a photo
+          </button>
+        </div>
+      )}
 
       <ul className="dex">
         {entries.map(({ species, finds }) => (
           <li key={finds[0].speciesKey}>
             <Photo blob={finds[0].photo} alt={species ? displayName(species) : 'Your photo'} />
             <div>
-              <strong>{species ? displayName(species) : 'Unknown species'}</strong>
+              {species && <span className="readout">{dexNumber(species)}</span>}
+              <strong className="dex-name">{species ? displayName(species) : 'Unknown species'}</strong>
               {species && (
                 <p>
-                  <em>{species.scientific}</em> · {species.kind}
+                  <em>{species.scientific}</em> <KindChip kind={species.kind} />
                 </p>
               )}
               <p className="hint">
-                {finds.length > 1 ? `Seen ${finds.length} times · ` : ''}
+                {finds.length > 1 ? `Seen ${finds.length} times, last on ` : 'Found on '}
                 {new Date(finds[0].foundAt).toLocaleDateString('en-GB')}
-                {finds[0].position?.hidden && ' · 🛡️ place hidden'}
               </p>
+              {finds[0].position?.hidden && <p className="hint">🛡️ Place hidden to protect it</p>}
             </div>
           </li>
         ))}

@@ -48,6 +48,12 @@ export default function CameraScreen({ onGoPrepare }) {
 
   useEffect(() => () => preview && URL.revokeObjectURL(preview), [preview])
 
+  // The device's lens scans while NaturDex thinks (styled in index.css)
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-scanning', step === 'thinking')
+    return () => document.documentElement.removeAttribute('data-scanning')
+  }, [step])
+
   function retake() {
     setResult(null)
     setQuality(null)
