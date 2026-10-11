@@ -12,6 +12,13 @@ const BUTTONS = [
 
 function App() {
   const [screen, setScreen] = useState('camera')
+  // Pressing a button always starts that screen afresh (e.g. the camera after
+  // "New species!"), because a new key makes React mount it again
+  const [visit, setVisit] = useState(0)
+  function go(key) {
+    setScreen(key)
+    setVisit((v) => v + 1)
+  }
 
   return (
     <div className="device">
@@ -27,9 +34,9 @@ function App() {
 
       <main className="screen">
         <div className="lcd">
-          {screen === 'camera' && <CameraScreen onGoPrepare={() => setScreen('prepare')} />}
-          {screen === 'dex' && <DexScreen onGoCamera={() => setScreen('camera')} />}
-          {screen === 'prepare' && <PrepareTripScreen />}
+          {screen === 'camera' && <CameraScreen key={visit} onGoPrepare={() => go('prepare')} />}
+          {screen === 'dex' && <DexScreen key={visit} onGoCamera={() => go('camera')} />}
+          {screen === 'prepare' && <PrepareTripScreen key={visit} />}
         </div>
       </main>
 
@@ -40,7 +47,7 @@ function App() {
             type="button"
             className={`pad-button pad-${key}`}
             aria-current={key === screen ? 'page' : undefined}
-            onClick={() => setScreen(key)}
+            onClick={() => go(key)}
           >
             <span className="pad-icon" aria-hidden="true">
               {icon}
